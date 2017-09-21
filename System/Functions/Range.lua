@@ -17,8 +17,8 @@ function getDistance(Unit1,Unit2,option)
         end
     end
     -- Check if objects exists and are visible
-    if GetObjectExists(Unit1) and GetUnitIsVisible(Unit1) == true
-        and GetObjectExists(Unit2) and GetUnitIsVisible(Unit2) == true
+    if GetObjectExists(Unit1) and GetUnitIsVisible(Unit1) == true 
+        and GetObjectExists(Unit2) and GetUnitIsVisible(Unit2) == true 
     then
     -- Get the distance
         local X1,Y1,Z1 = GetObjectPosition(Unit1)

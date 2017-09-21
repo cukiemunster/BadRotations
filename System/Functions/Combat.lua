@@ -299,25 +299,30 @@ function hasNoControl(spellID,unit)
 end
 -- if hasThreat("target") then
 function hasThreat(unit,playerUnit)
-	local unit = unit or "target"
-	local playerUnit = playerUnit or "player"
-	local unitThreat
-	local targetOfTarget
-	local targetFriend
-	if GetObjectExists("targettarget") and GetObjectExists(unit) then targetOfTarget = UnitTarget(unit) else targetOfTarget = "player" end
-	if GetObjectExists(targetOfTarget) and GetObjectExists(targetOfTarget) then targetFriend = (UnitInParty(targetOfTarget) or UnitInRaid(targetOfTarget)) else targetFriend = false end
-	for i = 1, #br.friend do
-		local thisUnit = br.friend[i].unit
-		if UnitThreatSituation(unit, thisUnit)~=nil then
-			return true
+	if unit == nil then unit = "target" end
+	if playerUnit == nil then playerUnit = "player" end
+	local targetUnit = UnitTarget(GetUnit(unit))
+	if targetUnit == nil then targetOfTarget = false; targetFriend = false else targetOfTarget = targetUnit end
+	if targetOfTarget then targetFriend = (UnitInParty(targetOfTarget) or UnitInRaid(targetOfTarget) or UnitName(targetOfTarget) == UnitName("player")) else targetFriend = false end
+	if #br.friend > 1 then
+		for i = 1, #br.friend do
+			local thisUnit = br.friend[i].unit
+			if UnitDetailedThreatSituation(thisUnit,unit) ~= nil and targetFriend then
+				if select(3,UnitDetailedThreatSituation(thisUnit,unit)) > 0 then 
+					if isChecked("Cast Debug") and not UnitExists("target") then Print(UnitName(unit).." is threatening "..UnitName(thisUnit).."."); end
+					return true 
+				end
+			end
 		end
-	end
-	if UnitThreatSituation(playerUnit, unit)~=nil then
-		return true
+	elseif UnitDetailedThreatSituation(playerUnit, unit)~=nil then
+		if select(3,UnitDetailedThreatSituation(playerUnit, unit)) > 0 then 
+			if isChecked("Cast Debug") and not UnitExists("target") then Print(UnitName(unit).." is threatening you."); end 
+			return true 
+		end
 	elseif targetFriend then
-		return true
+		if isChecked("Cast Debug") and not UnitExists("target") then Print(UnitName(unit).." if targetting "..UnitName(targetOfTarget)) end
+		return targetFriend
 	end
-	return false
 end
 -- if isAggroed("target") then
 function isAggroed(unit)
